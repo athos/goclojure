@@ -9,5 +9,6 @@
   :profiles {:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
-             :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}}
+             :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
+             :dev {:source-paths ["examples"]}}
   :aliases {"all" ["with-profile" "dev:1.4:1.5:1.6:1.7"]})
