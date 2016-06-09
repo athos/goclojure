@@ -1,7 +1,6 @@
 (ns goclojure.core
-  (:use [clojure.pprint :only [pprint]]
-        [clojure.math.combinatorics :only [subsets]])
-  (:require [clojure.string :as str])
+  (:require [clojure.math.combinatorics :as comb]
+            [clojure.string :as str])
   (:import [java.util.regex Pattern]))
 
 (defmacro ?= [x]
@@ -140,7 +139,7 @@
 (defn shortest-abbreviation
   ([sym] (shortest-abbreviation (global-env) sym))
   ([globals sym]
-   (first (for [cs (rest (subsets (str sym)))
+   (first (for [cs (rest (comb/subsets (str sym)))
                 :let [n (apply str cs)]
                 :when (= sym (matching-name globals n))]
             (symbol n)))))
