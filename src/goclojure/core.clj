@@ -3,11 +3,6 @@
             [clojure.string :as str])
   (:import [java.util.regex Pattern]))
 
-(defmacro ?= [x]
-  `(let [x# ~x]
-     (prn '[DEBUG] '~x x#)
-     x#))
-
 (def ^:private %specials
   '#{def if fn* let* letfn* set! do throw try catch finally loop* recur case*
      monitor-enter monitor-exit . new deftype* reify* quote var import*})
