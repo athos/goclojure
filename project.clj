@@ -6,7 +6,8 @@
   :min-lein-version "2.6.1"
   :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
                  [org.clojure/clojurescript "1.9.854"]
-                 [org.clojure/math.combinatorics "0.1.3"]]
+                 [org.clojure/math.combinatorics "0.1.3"]
+                 [net.cgrand/macrovich "0.2.0"]]
   :profiles {:1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
              :1.8 {:dependencies [[org.clojure/clojure "1.8.0"]]}
              :dev {:source-paths ["examples"]}}
