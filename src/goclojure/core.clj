@@ -1,11 +1,13 @@
 (ns goclojure.core
   (:require [clojure.math.combinatorics :as comb]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [net.cgrand.macrovich :as macros])
   (:import [java.util.regex Pattern]))
 
 (def ^:private %specials
-  '#{def if fn* let* letfn* set! do throw try catch finally loop* recur case*
-     monitor-enter monitor-exit . new deftype* reify* quote var import*})
+  (into '#{def if fn* let* letfn* set! do throw try catch finally loop*
+           recur case* . new deftype* quote var}
+        (macros/case :clj '#{monitor-enter monitor-exit reify* import*})))
 
 (def ^:private %keywords
   {(symbol "nil") nil, (symbol "true") true, (symbol "false") false})
@@ -13,8 +15,14 @@
 (defn- list->sorted-set [list]
   (apply sorted-set-by #(<= (count (str %1)) (count (str %2))) list))
 
-(defn- global-env []
-  (list->sorted-set (concat (keys %keywords) %specials (keys (ns-map *ns*)))))
+(defn- make-global-env [env]
+  (macros/case
+    :clj (-> (concat (keys %keywords) %specials (keys (ns-map *ns*)))
+             list->sorted-set)))
+
+(defn- make-local-env [env]
+  (macros/case
+    :clj (set (keys env))))
 
 (defn- matching-name [globals sym]
   (let [re (->> (seq (str sym))
@@ -135,18 +143,22 @@
 
 (defmacro goclojure
   ([expr]
-   (let [globals (global-env)
-         locals (set (keys &env))]
+   (let [globals (make-global-env &env)
+         locals (make-local-env &env)]
      (abbrev-expand globals locals expr)))
   ([expr1 & exprs]
    `(do ~@(for [expr (cons expr1 exprs)] `(goclojure ~expr)))))
 
 ;; name abbreviator
 
-(defn shortest-abbreviation
-  ([sym] (shortest-abbreviation (global-env) sym))
-  ([globals sym]
-   (first (for [cs (rest (comb/subsets (str sym)))
-                :let [n (apply str cs)]
-                :when (= sym (matching-name globals n))]
-            (symbol n)))))
+(defn- shortest-abbreviation* [globals sym]
+  (first (for [cs (rest (comb/subsets (str sym)))
+               :let [n (apply str cs)]
+               :when (= sym (matching-name globals n))]
+           (symbol n))))
+
+(macros/case
+  :clj
+  (defn shortest-abbreviation
+    ([sym] (shortest-abbreviation (make-global-env nil) sym))
+    ([globals sym] (shortest-abbreviation* globals sym))))
