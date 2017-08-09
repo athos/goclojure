@@ -18,11 +18,19 @@
 (defn- make-global-env [env]
   (macros/case
     :clj (-> (concat (keys %keywords) %specials (keys (ns-map *ns*)))
-             list->sorted-set)))
+             list->sorted-set)
+    :cljs (-> (concat (keys %keywords) %specials
+                      (keys (get-in env [:ns :uses]))
+                      (keys (get-in env [:ns :use-macros]))
+                      (keys (get-in env [:ns :rename]))
+                      (keys (get-in env [:ns :rename-macros]))
+                      (keys (get-in env [:ns :defs])))
+              list->sorted-set)))
 
 (defn- make-local-env [env]
   (macros/case
-    :clj (set (keys env))))
+    :clj (set (keys env))
+    :cljs (set (keys (:locals env)))))
 
 (defn- matching-name [globals sym]
   (let [re (->> (seq (str sym))
@@ -161,4 +169,8 @@
   :clj
   (defn shortest-abbreviation
     ([sym] (shortest-abbreviation (make-global-env nil) sym))
-    ([globals sym] (shortest-abbreviation* globals sym))))
+    ([globals sym] (shortest-abbreviation* globals sym)))
+  :cljs
+  (defmacro shortest-abbreviation
+    ([sym] `(shortest-abbrevition '~(make-global-env &env) '~sym))
+    ([globals sym] `'~(shortest-abbrevition* globals sym))))
