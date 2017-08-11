@@ -4,8 +4,10 @@
 /classes
 /target
 /native
+/out
 /.lein-failures
 /checkouts
 /.lein-deps-sum
 /.lein-repl-history
+/.cljs_node_repl
 *~
